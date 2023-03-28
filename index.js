@@ -25,18 +25,17 @@ app.post('/send-email', (req, res) => {
   const mailOptions = {
     from: email,
     to: 'thomas.s.brown@gmail.com',
-    subject: `${subject}: ${name}, ${email}`,
-    // text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
-    text: message
+    subject: `BRW Site Request: ${subject}: ${name}, ${email}`,
+    text: `${message}\nreply to: ${email}`
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.status(500).send('Error sending email');
+      res.status(500).json({ success: false, message: 'Error sending email' });
     } else {
       console.log(`Email sent: ${info.response}`);
-      res.status(200).send('Email sent successfully');
+      res.status(200).json({ success: true, message: 'Email sent successfully' });
     }
   });
 });

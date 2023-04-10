@@ -10,22 +10,24 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const multer = require('multer');
-// const upload = multer(); //this only lets you accept one file?
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, './uploads/');
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    cb(null, Date.now() + '-' + file.originalname);
   }
 });
 
-const upload = multer({ storage }).fields([{ name: 'files', maxCount: 10 }]);
+//fild upload handling?
+const upload = multer({ storage: storage });
 
-app.post('/send-email', upload, (req, res) => {
+//successfully sends emails with a single attachment
+app.post('/send-email', upload.single('file'), function (req, res) {
   console.log('Received email request:', req.body);
   const { name, email, message, subject, phone } = req.body; //deleted files from here which was working before
+  const file = req.file;
 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -40,15 +42,10 @@ app.post('/send-email', upload, (req, res) => {
     to: 'thomas.s.brown@gmail.com',
     subject: `BRW Site Request: ${subject}: ${name}, ${email}`,
     text: `${message}\nreply to: ${email}, phone: ${phone}`,
-    //can you push files from angular to this? Works with local files
     attachments: [
       {
-        filename: 'hello1.png',
-        path: '/Users/thomasbrown/projects/Brier/BrierServer/hello1.png'
-      },
-      {
-        filename: 'test.csv',
-        path: '/Users/thomasbrown/projects/Brier/BrierServer/test.csv'
+        filename: file.originalname,
+        path: file.path
       }
     ]
   };
@@ -72,4 +69,3 @@ app.get('/api/data', (req, res) => {
 app.listen(port, () => {
   console.log(`Express server listening on port ${port}`);
 });
-

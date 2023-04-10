@@ -5,6 +5,8 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+
+
 const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
@@ -65,6 +67,8 @@ app.post('/send-email', upload.array('files'), function (req, res) { //changed f
       res.status(200).json({ success: true, message: 'Email sent successfully' });
     }
   });
+
+
 });
 
 
@@ -76,3 +80,17 @@ app.get('/api/data', (req, res) => {
 app.listen(port, () => {
   console.log(`Express server listening on port ${port}`);
 });
+
+//TRY next time
+// const { exec } = require('child_process');
+
+// exec('rm -rf /path/to/folder/*', (err, stdout, stderr) => {
+//   if (err) {
+//     console.error(`Error: ${err}`);
+//     return;
+//   }
+//   console.log(`stdout: ${stdout}`);
+//   console.error(`stderr: ${stderr}`);
+// });
+
+//

@@ -5,7 +5,7 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-
+const fs = require('fs');
 
 const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
@@ -77,20 +77,19 @@ app.get('/api/data', (req, res) => {
   res.json(data);
 });
 
+//remove file from server once emailed
+app.delete('/uploads/:filename', (req, res) => {
+  const filename = req.params.filename;
+  fs.unlink(`./uploads/${filename}`, (err) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+    } else {
+      res.sendStatus(200);
+    }
+  });
+});
+
 app.listen(port, () => {
   console.log(`Express server listening on port ${port}`);
 });
-
-//TRY next time
-// const { exec } = require('child_process');
-
-// exec('rm -rf /path/to/folder/*', (err, stdout, stderr) => {
-//   if (err) {
-//     console.error(`Error: ${err}`);
-//     return;
-//   }
-//   console.log(`stdout: ${stdout}`);
-//   console.error(`stderr: ${stderr}`);
-// });
-
-//

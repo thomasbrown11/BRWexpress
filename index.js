@@ -50,7 +50,7 @@ app.post('/send-email', upload.array('files'), function (req, res) { //changed f
     from: email,
     to: 'thomas.s.brown@gmail.com',
     subject: `BRW Site Request: ${subject}: ${name}, ${email}`,
-    text: `${message}\nreply to: ${email}, phone: ${phone}\nMail List?: ${listOpt}`,
+    html: `<p>${message}<br>reply to: ${email}, phone: ${phone}<br>Mail List?: <span style="color: ${listOpt === 'true' ? 'green' : 'red'}">${listOpt}</span></p>`,
     attachments: files.map((file) => {
       return {
         filename: file.originalname,

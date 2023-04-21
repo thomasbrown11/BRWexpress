@@ -35,7 +35,7 @@ const upload = multer({
 app.post('/send-email', upload.array('files'), function (req, res) { //changed from upload.array('files')
   console.log('Received email request:', req.body);
   console.log(req.files);
-  const { name, email, message, subject, phone } = req.body;
+  const { name, email, message, subject, phone, listOpt } = req.body;
   const files = req.files;
 
   const transporter = nodemailer.createTransport({
@@ -50,7 +50,7 @@ app.post('/send-email', upload.array('files'), function (req, res) { //changed f
     from: email,
     to: 'thomas.s.brown@gmail.com',
     subject: `BRW Site Request: ${subject}: ${name}, ${email}`,
-    text: `${message}\nreply to: ${email}, phone: ${phone}`,
+    text: `${message}\nreply to: ${email}, phone: ${phone}\nMail List?: ${listOpt}`,
     attachments: files.map((file) => {
       return {
         filename: file.originalname,

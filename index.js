@@ -18,7 +18,8 @@ const storage = multer.diskStorage({
     cb(null, './uploads/');
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+    // cb(null, Date.now() + '-' + file.originalname);
+    cb(null, file.originalname); //altered to match fs call on DELETE? try other way next?
   }
 });
 
@@ -79,12 +80,14 @@ app.get('/api/data', (req, res) => {
 
 //remove file from server once emailed
 app.delete('/uploads/:filename', (req, res) => {
-  const filename = req.params.filename;
+  const filename = req.params.filename;  
   fs.unlink(`./uploads/${filename}`, (err) => {
     if (err) {
       console.error(err);
+      console.log(filename);//delete?
       res.sendStatus(500);
     } else {
+      console.log(`${filename} deleted successfully`);//delete?
       res.sendStatus(200);
     }
   });

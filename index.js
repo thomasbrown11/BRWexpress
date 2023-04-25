@@ -7,6 +7,9 @@ require('dotenv').config();
 
 const fs = require('fs');
 
+const request = require('request');
+
+
 const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
@@ -80,7 +83,7 @@ app.get('/api/data', (req, res) => {
 
 //remove file from server once emailed
 app.delete('/uploads/:filename', (req, res) => {
-  const filename = req.params.filename;  
+  const filename = req.params.filename;
   fs.unlink(`./uploads/${filename}`, (err) => {
     if (err) {
       console.error(err);
@@ -89,6 +92,28 @@ app.delete('/uploads/:filename', (req, res) => {
     } else {
       console.log(`${filename} deleted successfully`);//delete?
       res.sendStatus(200);
+    }
+  });
+});
+
+
+//GET request to instagram app for media display
+app.get('/api/instagram', (req, res) => {
+  // Make a request to the Instagram API to fetch the media objects for the user with the access token
+  const access_token = process.env.INSTA_TOKEN;
+  const options = {
+    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url&access_token=${access_token}`,
+    json: true
+  };
+
+  request.get(options, (error, response, body) => {
+    if (error) {
+      // Handle errors
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching Instagram media' });
+    } else {
+      // Process the response from the Instagram API and send back the relevant data to the client
+      res.json(body);
     }
   });
 });

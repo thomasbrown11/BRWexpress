@@ -102,7 +102,7 @@ app.get('/api/instagram', (req, res) => {
   // Make a request to the Instagram API to fetch the media objects for the user with the access token
   const access_token = process.env.INSTA_TOKEN;
   const options = {
-    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url&access_token=${access_token}`,
+    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&access_token=${access_token}`,
     json: true
   };
 

@@ -102,7 +102,7 @@ app.get('/api/instagram', (req, res) => {
   // Make a request to the Instagram API to fetch the media objects for the user with the access token
   const access_token = process.env.INSTA_TOKEN;
   const options = {
-    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&access_token=${access_token}`,
+    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children,timestamp&access_token=${access_token}`,
     json: true
   };
 
@@ -117,6 +117,27 @@ app.get('/api/instagram', (req, res) => {
     }
   });
 });
+
+//individual id request for carousels
+app.get('/api/instagram/:id', (req, res) => {
+  const access_token = process.env.INSTA_TOKEN; //this is referenced elswhere
+  const options = {
+    //does this work?
+    url: `https://graph.instagram.com/${req.params.id}?fields=media_url&access_token=${access_token}`,
+    json: true
+  }
+
+  request.get(options, (error, response, body) => {
+    if (error) {
+      // Handle errors
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching Instagram media' });
+    } else {
+      // Process the response from the Instagram API and send back the relevant data to the client
+      res.json(body);
+    }
+  });
+})
 
 app.listen(port, () => {
   console.log(`Express server listening on port ${port}`);

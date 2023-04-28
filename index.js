@@ -101,8 +101,15 @@ app.delete('/uploads/:filename', (req, res) => {
 app.get('/api/instagram', (req, res) => {
   // Make a request to the Instagram API to fetch the media objects for the user with the access token
   const access_token = process.env.INSTA_TOKEN;
+  // const after = "QVFIUnhQbWdaM1RQNlc0ckxweUlsMjdJd1llOGM1REFSa2JVVTVvT3NMSFhCZAzA1VmFyeGV5MWR4NGNVUVpjSWJuM2xyN0NoWnlsMFlIYTV4NTd3S0JfOUdB"
+  //this is the full url for the next 16.. the next batch has its own next property (data.paging.next)
+  //there's also a data.paging.previous if you wanted to go back
+  // const next = 'https://graph.instagram.com/v16.0/17841411299784503/media?access_token=IGQVJXMHVsRHhCbDVHbmltYTNxd2VGcDhMeW1qOU9lSTJwWnE3TXNHak1wX3JtNzM3S29vXzU4ZAk9GUHhTbEJVanVPVFpBS0xLMnlkNXFSVms2WWdhQ1c1RTQ0ckdrRlFOaXhUMTVFQTFoX2hjTnJYZAQZDZD&fields=id%2Ccaption%2Cmedia_type%2Cmedia_url%2Cpermalink%2Cthumbnail_url%2Cchildren%2Ctimestamp&limit=16&after=QVFIUnhQbWdaM1RQNlc0ckxweUlsMjdJd1llOGM1REFSa2JVVTVvT3NMSFhCZAzA1VmFyeGV5MWR4NGNVUVpjSWJuM2xyN0NoWnlsMFlIYTV4NTd3S0JfOUdB'
   const options = {
-    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children,timestamp&access_token=${access_token}`,
+    //this url now contains '&limit=16' meaning load only the first 16 resources
+    //**add '&after=${after}' to get next 16 after limit.. data.paging.cursors.after**
+    //'@after
+    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children,timestamp&limit=16&access_token=${access_token}`,
     json: true
   };
 

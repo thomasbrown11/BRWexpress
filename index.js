@@ -130,7 +130,7 @@ app.get('/api/instagram/:id', (req, res) => {
   const access_token = process.env.INSTA_TOKEN; //this is referenced elswhere
   const options = {
     //does this work?
-    url: `https://graph.instagram.com/${req.params.id}?fields=media_url&access_token=${access_token}`,
+    url: `https://graph.instagram.com/${req.params.id}?fields=media_type,media_url&access_token=${access_token}`,
     json: true
   }
 

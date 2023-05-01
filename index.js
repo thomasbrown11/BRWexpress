@@ -109,7 +109,7 @@ app.get('/api/instagram', (req, res) => {
     //this url now contains '&limit=16' meaning load only the first 16 resources
     //**add '&after=${after}' to get next 16 after limit.. data.paging.cursors.after**
     //'@after
-    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_url},timestamp&limit=16&access_token=${access_token}`,
+    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&access_token=${access_token}`,
     json: true
   };
 
@@ -121,7 +121,7 @@ app.get('/api/instagram', (req, res) => {
     } else {
       // Process the response from the Instagram API and send back the relevant data to the client
       res.json(body);
-      console.log(body);
+      // console.log(body);
     }
   });
 });

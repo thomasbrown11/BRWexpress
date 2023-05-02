@@ -126,12 +126,12 @@ app.get('/api/instagram', (req, res) => {
   });
 });
 
-//individual id request for carousels
-app.get('/api/instagram/:id', (req, res) => {
+//get next 16 via after variable
+app.get('/api/instagram/:after', (req, res) => {
   const access_token = process.env.INSTA_TOKEN; //this is referenced elswhere
   const options = {
     //does this work?
-    url: `https://graph.instagram.com/${req.params.id}?fields=media_type,media_url&access_token=${access_token}`,
+    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&after=${req.params.after}&access_token=${access_token}`,
     json: true
   }
 

@@ -100,23 +100,6 @@ app.post('/send-email', upload.array('files'), function (req, res) { //changed f
           console.log(`Confirmation email sent: ${info.response}`);
         }
       });
-
-      //old style trying to use old config. Delete when password encoded in .env
-      // const confirmationMailOptions = {
-      //   from: 'BRW <dev.testb5a@gmail.com>',
-      //   replyTo: 'dev.testb5a@gmail.com',
-      //   sender: 'BRW <dev.testb5a@gmail.com>',
-      //   to: email,
-      //   subject: 'Thank you for contacting us',
-      //   html: '<p>Thank you for contacting BRW. We have received your message and will get back to you as soon as possible.</p><br><p><span style="color: red">Warning: This is an automated response from an unmonitored email. Please do not reply as responses will not be recieved.</span></p>'
-      // };
-      // transporter.sendMail(confirmationMailOptions, (error, info) => {
-      //   if (error) {
-      //     console.error(error);
-      //   } else {
-      //     console.log(`Confirmation email sent: ${info.response}`);
-      //   }
-      // });
       res.status(200).json({ success: true, message: 'Email sent successfully' });
     }
   });

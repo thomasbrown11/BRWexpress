@@ -122,7 +122,7 @@ app.delete('/uploads/:filename', (req, res) => {
       console.log(filename);//delete?
       res.sendStatus(500);
     } else {
-      console.log(`${filename} deleted successfully`);//delete?
+      console.log(`${filename} deleted successfully`);//delete
       res.sendStatus(200);
     }
   });

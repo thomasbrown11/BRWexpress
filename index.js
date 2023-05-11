@@ -83,14 +83,14 @@ app.post('/send-email', upload.array('files'), function (req, res) { //changed f
       //build noreply thank you email
       const confirmationMailOptions = {
         //replace with noreplay@domain.com when registered
-        from: 'BRW <dev.testb5a@gmail.com>',
+        from: 'Else Rose Werner Glass <dev.testb5a@gmail.com>',
         //replace when registered
         replyTo: 'dev.testb5a@gmail.com',
         //replace when registered
-        sender: 'BRW <dev.testb5a@gmail.com>',
+        sender: 'Else Rose Werner Glass <dev.testb5a@gmail.com>',
         to: email,
         subject: 'Thank you for contacting us',
-        html: '<p>Thank you for contacting BRW. We have received your message and will get back to you as soon as possible.</p><br><p><span style="color: red">Warning: This is an automated response from an unmonitored email. Please do not reply as responses will not be recieved.</span></p>'
+        html: '<p>Thank you for contacting Else Rose Werner Glass! We have received your message and will get back to you as soon as possible.</p><br><p><span style="color: red">Warning: This is an automated response from an unmonitored email. Please do not reply as responses will not be recieved.</span></p>'
       };
       //send noreply
       confirmationTransporter.sendMail(confirmationMailOptions, (error, info) => {

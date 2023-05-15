@@ -2,19 +2,25 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
+
+//3rd party email handler
 const nodemailer = require('nodemailer');
+//auto update server
 require('dotenv').config();
 
 const fs = require('fs');
 
 const request = require('request');
 
-
+//port config
 const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
 
+//file upload handler
 const multer = require('multer');
+
+const MailboxValidator = require("mailboxvalidator-node");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

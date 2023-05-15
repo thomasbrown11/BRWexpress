@@ -20,7 +20,10 @@ app.use(cors());
 //file upload handler
 const multer = require('multer');
 
+//config email validation api
 const MailboxValidator = require("mailboxvalidator-node");
+//link to token
+const mailboxValidator = MailboxValidator(process.env.MAILBOX_VALIDATOR_TOKEN);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

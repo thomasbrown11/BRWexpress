@@ -85,7 +85,6 @@ app.post('/send-email', upload.array('files'), async function (req, res) { //cha
   //use private method to validate entered email
   const validationResponse = await validateEmail(email);
   console.log(validationResponse)
-  return
 
   if (!validationResponse.isValidated) {
     // Email validation failed.. return 400 status and error code.. handle in app

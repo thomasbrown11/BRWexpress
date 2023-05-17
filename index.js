@@ -58,7 +58,11 @@ const validateEmail = async (email) => {
     if (responseData.is_verified === 'True' && responseData.is_suppressed === 'False' && responseData.is_high_risk === 'False') {
       // Email is validated
       return { isValidated: true, errorCode: null };
-    } else {
+    } else if (responseData.is_verified === '-') {
+      console.log('velidation not applicable')
+      return { isValidated: false, errorCode: 'validation not applicable' }
+    }
+    else {
       // Email validation failed with possible error. Here's map:
       //     // 100	Missing parameter.
       //     // 101	API key not found.
@@ -87,6 +91,9 @@ app.post('/send-email', upload.array('files'), async function (req, res) { //cha
   console.log(validationResponse)
 
   if (!validationResponse.isValidated) {
+    if (validationResponse.errorCode === 'validation not applicable') {
+      return res.status(400).json({ success: false, errorCode: 'validation not applicable' })
+    }
     // Email validation failed.. return 400 status and error code.. handle in app
     return res.status(400).json({ success: false, errorCode: validationResponse.errorCode });
   } else {

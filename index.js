@@ -10,7 +10,11 @@ require('dotenv').config();
 
 const fs = require('fs');
 
+//this is deprecated and has a security vulnerability? switch to fetch if working?
 const request = require('request');
+
+//axios for api request parsing
+const axios = require('axios');
 
 //port config
 const port = process.env.PORT || 3000;
@@ -39,24 +43,15 @@ const upload = multer({
   }
 });
 
-//axios for api request parsing
-const axios = require('axios');
-
 // Private method for email validation using MailboxValidator API
 const validateEmail = async (email) => {
-  const apiUrl = 'https://api.mailboxvalidator.com/v1/validation/single';
-  const apiKey = process.env.MAILBOX_VALIDATOR_TOKEN;
+  const apiUrl = `https://api.mailboxvalidator.com/v1/validation/single?email=${encodeURIComponent(email)}&key=${process.env.MAILBOX_VALIDATOR_TOKEN}`;
 
   try {
-    const response = await axios.get(apiUrl, {
-      params: {
-        email: email,
-        key: apiKey,
-      },
-    });
+    const responseData = await axios.get(apiUrl);
 
     //test validation response JSON 
-    if (response.is_verified && !response.is_suppressed && !response.is_high_risk) {
+    if (responseData.is_verified && !responseData.is_suppressed && !responseData.is_high_risk) {
       // Email is validated
       return { isValidated: true, errorCode: null };
     } else {
@@ -67,7 +62,7 @@ const validateEmail = async (email) => {
       //     // 103	API key expired.
       //     // 104	Insufficient credits.
       //     // 105	Unknown error.
-      const errorCode = response.error_code || 'UnknownError';
+      const errorCode = responseData.error_code || 'UnknownError';
       return { isValidated: false, errorCode: errorCode };
     }
   } catch (error) {
@@ -88,7 +83,10 @@ app.post('/send-email', upload.array('files'), async function (req, res) { //cha
   if (!validationResponse.isValidated) {
     // Email validation failed.. return 400 status and error code.. handle in app
     return res.status(400).json({ success: false, errorCode: validationResponse.errorCode });
+  } else {
+    console.log('email validated')
   }
+
 
   //transporter config to send email to user from business
   const transporter = nodemailer.createTransport({

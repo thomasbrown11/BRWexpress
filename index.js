@@ -48,10 +48,14 @@ const validateEmail = async (email) => {
   const apiUrl = `https://api.mailboxvalidator.com/v1/validation/single?email=${encodeURIComponent(email)}&key=${process.env.MAILBOX_VALIDATOR_TOKEN}`;
 
   try {
-    const responseData = await axios.get(apiUrl);
+    const response = await axios.get(apiUrl);
+    const responseData = response.data;
+
+    console.log(responseData);
 
     //test validation response JSON 
-    if (responseData.is_verified && !responseData.is_suppressed && !responseData.is_high_risk) {
+    //Bad config from MailValidator where booleans are actually strings for future reference
+    if (responseData.is_verified === 'True' && responseData.is_suppressed === 'False' && responseData.is_high_risk === 'False') {
       // Email is validated
       return { isValidated: true, errorCode: null };
     } else {
@@ -80,6 +84,9 @@ app.post('/send-email', upload.array('files'), async function (req, res) { //cha
 
   //use private method to validate entered email
   const validationResponse = await validateEmail(email);
+  console.log(validationResponse)
+  return
+
   if (!validationResponse.isValidated) {
     // Email validation failed.. return 400 status and error code.. handle in app
     return res.status(400).json({ success: false, errorCode: validationResponse.errorCode });

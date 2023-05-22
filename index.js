@@ -189,69 +189,83 @@ app.delete('/uploads/:filename', (req, res) => {
 
 
 //GET request to instagram app for media display
-app.get('/api/instagram', (req, res) => {
-  // Make a request to the Instagram API to fetch the media objects for the user with the access token
-  const access_token = process.env.INSTA_TOKEN;
-  //this is the full url for the next 16.. the next batch has its own next property (data.paging.next)
-  //there's also a data.paging.previous if you wanted to go back
-  const options = {
-    //this url now contains '&limit=16' meaning load only the first 16 resources
-    //**add '&after=${after}' to get next 16 after limit.. data.paging.cursors.after**
-    //'@after
-    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&access_token=${access_token}`,
-    json: true
-  };
+// app.get('/api/instagram', (req, res) => {
+//   // Make a request to the Instagram API to fetch the media objects for the user with the access token
+//   const access_token = process.env.INSTA_TOKEN;
+//   //this is the full url for the next 16.. the next batch has its own next property (data.paging.next)
+//   //there's also a data.paging.previous if you wanted to go back
+//   const options = {
+//     //this url now contains '&limit=16' meaning load only the first 16 resources
+//     //**add '&after=${after}' to get next 16 after limit.. data.paging.cursors.after**
+//     //'@after
+//     url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&access_token=${access_token}`,
+//     json: true
+//   };
 
-  request.get(options, (error, response, body) => {
-    if (error) {
-      // Handle errors
-      console.error(error);
-      res.status(500).json({ message: 'Error fetching Instagram media' });
-    } else {
-      // Process the response from the Instagram API and send back the relevant data to the client
-      res.json(body);
-      // console.log(body);
-    }
-  });
-});
+//   request.get(options, (error, response, body) => {
+//     if (error) {
+//       // Handle errors
+//       console.error(error);
+//       res.status(500).json({ message: 'Error fetching Instagram media' });
+//     } else {
+//       // Process the response from the Instagram API and send back the relevant data to the client
+//       res.json(body);
+//       // console.log(body);
+//     }
+//   });
+// });
 
 //axios replacement for standard insta get
-// app.get('/api/instagram', async (req, res) => {
-//   try {
-//     const access_token = process.env.INSTA_TOKEN;
-//     const apiUrl = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&access_token=${access_token}`;
+app.get('/api/instagram', async (req, res) => {
+  try {
+    const access_token = process.env.INSTA_TOKEN;
+    const apiUrl = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&access_token=${access_token}`;
 
-//     const response = await axios.get(apiUrl);
-//     const responseData = response.data;
+    const response = await axios.get(apiUrl);
+    const responseData = response.data;
 
-//     res.json(responseData);
-//     // console.log(responseData);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Error fetching Instagram media' });
-//   }
-// });
+    res.json(responseData);
+    // console.log(responseData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching Instagram media' });
+  }
+});
 
 
 //get next 16 via after variable
-app.get('/api/instagram/:after', (req, res) => {
-  const access_token = process.env.INSTA_TOKEN; //this is referenced elswhere
-  const options = {
-    url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&after=${req.params.after}&access_token=${access_token}`,
-    json: true
-  }
+// app.get('/api/instagram/:after', (req, res) => {
+//   const access_token = process.env.INSTA_TOKEN; //this is referenced elswhere
+//   const options = {
+//     url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&after=${req.params.after}&access_token=${access_token}`,
+//     json: true
+//   }
 
-  request.get(options, (error, response, body) => {
-    if (error) {
-      // Handle errors
+//   request.get(options, (error, response, body) => {
+//     if (error) {
+//       // Handle errors
+//       console.error(error);
+//       res.status(500).json({ message: 'Error fetching Instagram media' });
+//     } else {
+//       // Process the response from the Instagram API and send back the relevant data to the client
+//       res.json(body);
+//     }
+//   });
+// })
+
+app.get('/api/instagram/:after', (req, res) => {
+  const access_token = process.env.INSTA_TOKEN; // This is referenced elsewhere
+  const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&after=${req.params.after}&access_token=${access_token}`;
+
+  axios.get(url)
+    .then(response => {
+      res.json(response.data);
+    })
+    .catch(error => {
       console.error(error);
       res.status(500).json({ message: 'Error fetching Instagram media' });
-    } else {
-      // Process the response from the Instagram API and send back the relevant data to the client
-      res.json(body);
-    }
-  });
-})
+    });
+});
 
 app.listen(port, () => {
   console.log(`Express server listening on port ${port}`);

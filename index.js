@@ -26,7 +26,8 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './uploads/');
+    //change to '/tmp' later for lambda.. will store in cloud tmp folder instead of local
+    cb(null, './tmp'); //changed to tmp for AWS Lambda compatibility 
   },
   filename: function (req, file, cb) {
     // cb(null, Date.now() + '-' + file.originalname);
@@ -79,6 +80,11 @@ const validateEmail = async (email) => {
   }
 
 };
+
+app.get('/api/data', (req, res) => {
+  const data = { message: 'Hello from Express!' };
+  res.json(data);
+});
 
 app.post('/send-email', upload.array('files'), async function (req, res) { //changed from upload.array('files')
   console.log('Received email request:', req.body);
@@ -167,15 +173,11 @@ app.post('/send-email', upload.array('files'), async function (req, res) { //cha
 
 });
 
-app.get('/api/data', (req, res) => {
-  const data = { message: 'Hello from Express!' };
-  res.json(data);
-});
-
 //remove file from server once emailed
 app.delete('/uploads/:filename', (req, res) => {
   const filename = req.params.filename;
-  fs.unlink(`./uploads/${filename}`, (err) => {
+  //change to /tmp/${filename} when uploaded to AWS lambda.. delete from lambda tmp, not local
+  fs.unlink(`./tmp/${filename}`, (err) => {
     if (err) {
       console.error(err);
       console.log(filename);//delete?

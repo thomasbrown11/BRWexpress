@@ -10,9 +10,6 @@ require('dotenv').config();
 
 const fs = require('fs');
 
-//this is deprecated and has a security vulnerability? switch to fetch if working?
-const request = require('request');
-
 //axios for api request parsing
 const axios = require('axios');
 
@@ -21,13 +18,18 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
 
+//temp caching solution for instagram data (api request limiter)
+const NodeCache = require('node-cache');
+const cache = new NodeCache({ stdTTL: 600 }); // Set TTL (time-to-live) to 600 seconds (10 minutes)
+
+
 //file upload handler
 const multer = require('multer');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     //change to '/tmp' later for lambda.. will store in cloud tmp folder instead of local
-    cb(null, './tmp'); //changed to tmp for AWS Lambda compatibility 
+    cb(null, './tmp'); //changed to tmp for AWS Lambda compatibility... must be literally '/tmp' rather than './tmp' when uploaded to AWS
   },
   filename: function (req, file, cb) {
     // cb(null, Date.now() + '-' + file.originalname);
@@ -189,42 +191,32 @@ app.delete('/uploads/:filename', (req, res) => {
   });
 });
 
-
-//GET request to instagram app for media display
-// app.get('/api/instagram', (req, res) => {
-//   // Make a request to the Instagram API to fetch the media objects for the user with the access token
-//   const access_token = process.env.INSTA_TOKEN;
-//   //this is the full url for the next 16.. the next batch has its own next property (data.paging.next)
-//   //there's also a data.paging.previous if you wanted to go back
-//   const options = {
-//     //this url now contains '&limit=16' meaning load only the first 16 resources
-//     //**add '&after=${after}' to get next 16 after limit.. data.paging.cursors.after**
-//     //'@after
-//     url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&access_token=${access_token}`,
-//     json: true
-//   };
-
-//   request.get(options, (error, response, body) => {
-//     if (error) {
-//       // Handle errors
-//       console.error(error);
-//       res.status(500).json({ message: 'Error fetching Instagram media' });
-//     } else {
-//       // Process the response from the Instagram API and send back the relevant data to the client
-//       res.json(body);
-//       // console.log(body);
-//     }
-//   });
-// });
-
-//axios replacement for standard insta get
+//***INSTAGRAM ENDPOINTS***
+//axios request for first 16 instagram posts (change limit in query if you want more)
 app.get('/api/instagram', async (req, res) => {
   try {
+
+    const cacheKey = 'instagramData'; // Cache key for the Instagram data
+
+    // Check if the data is already cached
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      console.log('Data from cache:', cachedData); // Log the cached data
+      res.json(cachedData);
+      return; //end method to prevent api call
+    }
+
+    console.log('no values cached... making api request')
+
     const access_token = process.env.INSTA_TOKEN;
     const apiUrl = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&access_token=${access_token}`;
 
     const response = await axios.get(apiUrl);
     const responseData = response.data;
+
+    // Cache the data for future use
+    cache.set(cacheKey, responseData);
+    console.log('Data cached:', cachedData); // Log the cached data
 
     res.json(responseData);
     // console.log(responseData);
@@ -233,27 +225,6 @@ app.get('/api/instagram', async (req, res) => {
     res.status(500).json({ message: 'Error fetching Instagram media' });
   }
 });
-
-
-//get next 16 via after variable
-// app.get('/api/instagram/:after', (req, res) => {
-//   const access_token = process.env.INSTA_TOKEN; //this is referenced elswhere
-//   const options = {
-//     url: `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&after=${req.params.after}&access_token=${access_token}`,
-//     json: true
-//   }
-
-//   request.get(options, (error, response, body) => {
-//     if (error) {
-//       // Handle errors
-//       console.error(error);
-//       res.status(500).json({ message: 'Error fetching Instagram media' });
-//     } else {
-//       // Process the response from the Instagram API and send back the relevant data to the client
-//       res.json(body);
-//     }
-//   });
-// })
 
 app.get('/api/instagram/:after', (req, res) => {
   const access_token = process.env.INSTA_TOKEN; // This is referenced elsewhere

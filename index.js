@@ -19,6 +19,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 //temp caching solution for instagram data (api request limiter)
+//NodeCache (and its calls in instagram endpoints) needs to change when hosted remotely
+//may need to use amazon solution with AWS Lambda or look at other cache options 
 const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 600 }); // Set TTL (time-to-live) to 600 seconds (10 minutes)
 
@@ -216,7 +218,7 @@ app.get('/api/instagram', async (req, res) => {
 
     // Cache the data for future use
     cache.set(cacheKey, responseData);
-    console.log('Data cached:', cachedData); // Log the cached data
+    console.log('Data cached:', responseData); // Log the cached data
 
     res.json(responseData);
     // console.log(responseData);
@@ -226,18 +228,49 @@ app.get('/api/instagram', async (req, res) => {
   }
 });
 
-app.get('/api/instagram/:after', (req, res) => {
-  const access_token = process.env.INSTA_TOKEN; // This is referenced elsewhere
-  const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&after=${req.params.after}&access_token=${access_token}`;
+app.get('/api/instagram/:after', async (req, res) => {
+  try {
+    const cacheKey = 'instagramData'; // Cache key for the Instagram data
 
-  axios.get(url)
-    .then(response => {
-      res.json(response.data);
-    })
-    .catch(error => {
-      console.error(error);
-      res.status(500).json({ message: 'Error fetching Instagram media' });
+    // Check if the data is already cached
+    const cachedData = cache.get(cacheKey);
+
+    // Get the current 'data' array and 'after' value from the cache
+    const data = cachedData?.data || [];
+    // const after = cachedData?.paging?.cursors?.after || '';
+
+    const access_token = process.env.INSTA_TOKEN;
+    const apiUrl = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,children{media_type,media_url},timestamp&limit=16&after=${req.params.after}&access_token=${access_token}`;
+
+    const response = await axios.get(apiUrl);
+    const responseData = response.data;
+
+    // Append the new data to the existing 'data' array
+    const newData = [...data, ...responseData.data];
+
+    // Check if responseData.data has less than 16 objects
+    //less than 16 implies no more posts
+    if (responseData.data.length < 16) {
+      newAfter = '';
+    } else {
+      newAfter = responseData.paging.cursors.after;
+    }
+
+    // Update the cache object with the new data and 'after' value
+    cache.set(cacheKey, {
+      data: newData,
+      paging: {
+        cursors: {
+          after: newAfter
+        }
+      }
     });
+
+    res.json(responseData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching Instagram media' });
+  }
 });
 
 app.listen(port, () => {

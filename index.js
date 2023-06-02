@@ -240,7 +240,85 @@ app.post('/send-email/newsletter-sub', async function (req, res) {
         sender: 'Else Rose Werner Glass <dev.testb5a@gmail.com>',
         to: email,
         subject: 'Thank you for your subscription!',
-        html: '<p>Thank you for subscribing to the Else Werner Glass newsletter! Keep a look out for events, sales and more!</p><br><p><span style="color: red">Warning: This is an automated response from an unmonitored email. Please do not reply as responses will not be recieved.</span></p>'
+        html: '<p>Thank you for subscribing to the Else Werner Glass newsletter! Keep a look out for events, sales and more! Unsubscribe any time by visiting: http://localhost:4200/unsubscribe</p><br><p><span style="color: red">Warning: This is an automated response from an unmonitored email. Please do not reply as responses will not be recieved.</span></p>'
+      };
+      //send noreply
+      confirmationTransporter.sendMail(confirmationMailOptions, (error, info) => {
+        if (error) {
+          console.error(error);
+        } else {
+          console.log(`Confirmation email sent: ${info.response}`);
+        }
+      });
+      res.status(200).json({ success: true, message: 'Email sent successfully' });
+    }
+  });
+});
+
+//unsubscribe email handling
+app.post('/send-email/news-unsubscribe', async function (req, res) {
+  console.log('Received email request:', req.body);
+  const { email } = req.body;
+
+  //use private method to validate entered email
+  const validationResponse = await validateEmail(email);
+  console.log(validationResponse)
+
+  if (!validationResponse.isValidated) {
+    if (validationResponse.errorCode === 'validation not applicable') {
+      return res.status(400).json({ success: false, errorCode: 'validation not applicable' })
+    }
+    // Email validation failed.. return 400 status and error code.. handle in app
+    return res.status(400).json({ success: false, errorCode: validationResponse.errorCode });
+  } else {
+    console.log('email validated')
+  }
+
+
+  //transporter config to send email to user from business
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+  //email config send to request newsletter sub to business
+  const mailOptions = {
+    from: email,
+    to: 'thomas.s.brown@gmail.com',
+    subject: `Else Werner Glass Site- Unsubscribe ${email}`,
+    html: `<span style="color: red">${email} would like to be removed from the newsletter for Else Werner Glass</span>`
+  };
+  //send email to user
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Error sending email' });
+    } else {
+      console.log(`Email sent: ${info.response}`);
+
+      //if successful send a confirmation email
+      //configure new transporter for noreply email
+      const confirmationTransporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'dev.testb5a@gmail.com',
+          //MUST populate via gmail. hasn't been enabled yet so will be broken
+          pass: process.env.CONFIRM_EMAIL_PASS
+        }
+      });
+      //build noreply thank you email
+      const confirmationMailOptions = {
+        //replace with noreplay@domain.com when registered
+        from: 'Else Werner Glass <dev.testb5a@gmail.com>',
+        //replace when registered
+        replyTo: 'dev.testb5a@gmail.com',
+        //replace when registered
+        sender: 'Else Rose Werner Glass <dev.testb5a@gmail.com>',
+        to: email,
+        subject: 'Unsubscribed from Newsletter',
+        html: '<p>You have successfully unsubscribed from the Else Werner Glass Newsletter! Join again any time by visiting: http://localhost:4200/home</p><br><p><span style="color: red">Warning: This is an automated response from an unmonitored email. Please do not reply as responses will not be recieved.</span></p>'
       };
       //send noreply
       confirmationTransporter.sendMail(confirmationMailOptions, (error, info) => {

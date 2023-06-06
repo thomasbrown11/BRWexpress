@@ -258,7 +258,7 @@ app.post('/send-email/newsletter-sub', async function (req, res) {
 //unsubscribe email handling
 app.post('/send-email/news-unsubscribe', async function (req, res) {
   console.log('Received email request:', req.body);
-  const { email } = req.body;
+  const { email, feedback } = req.body;
 
   //use private method to validate entered email
   const validationResponse = await validateEmail(email);
@@ -288,7 +288,7 @@ app.post('/send-email/news-unsubscribe', async function (req, res) {
     from: email,
     to: 'thomas.s.brown@gmail.com',
     subject: `Else Werner Glass Site- Unsubscribe ${email}`,
-    html: `<span style="color: red">${email} would like to be removed from the newsletter for Else Werner Glass</span>`
+    html: `<span style="color: red">${email} would like to be removed from the newsletter for Else Werner Glass</span><br><span style="color: red">Stated Reason: ${feedback}</span>`
   };
   //send email to user
   transporter.sendMail(mailOptions, (error, info) => {

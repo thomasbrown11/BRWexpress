@@ -432,3 +432,45 @@ app.get('/api/instagram/:after', async (req, res) => {
 app.listen(port, () => {
   console.log(`Express server listening on port ${port}`);
 });
+
+//***SQUARE ENDPOINTS***
+app.get('/api/square', async (req, res) => {
+  try {
+
+    // const cacheKey = 'instagramData'; // Cache key for the Instagram data
+
+    // // Check if the data is already cached
+    // const cachedData = cache.get(cacheKey);
+    // if (cachedData) {
+    //   console.log('Data from cache:', cachedData); // Log the cached data
+    //   res.json(cachedData);
+    //   return; //end method to prevent api call
+    // }
+
+    // console.log('no values cached... making api request')
+
+    const access_token = process.env.SQUARE_TOKEN;
+    const apiUrl = `https://connect.squareup.com/v2/catalog/list`;
+
+    // Axios configuration with headers
+    const axiosConfig = {
+      headers: {
+        'Authorization': `Bearer ${access_token}`, // Include your access token in the Authorization header
+        'Content-Type': 'application/json', // Set the content type as needed
+      },
+    };
+
+    const response = await axios.get(apiUrl, axiosConfig);
+    const responseData = response.data;
+
+    // Cache the data for future use
+    // cache.set(cacheKey, responseData);
+    // console.log('Data cached:', responseData); // Log the cached data
+
+    res.json(responseData);
+    // console.log(responseData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching Instagram media' });
+  }
+});

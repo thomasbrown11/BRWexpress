@@ -437,17 +437,17 @@ app.listen(port, () => {
 app.get('/api/square', async (req, res) => {
   try {
 
-    // const cacheKey = 'instagramData'; // Cache key for the Instagram data
+    const cacheKey = 'squareData'; // Cache key for the Square data
 
-    // // Check if the data is already cached
-    // const cachedData = cache.get(cacheKey);
-    // if (cachedData) {
-    //   console.log('Data from cache:', cachedData); // Log the cached data
-    //   res.json(cachedData);
-    //   return; //end method to prevent api call
-    // }
+    // Check if the data is already cached
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      console.log('Data from cache:', cachedData); // Log the cached data
+      res.json(cachedData);
+      return; //end method to prevent api call
+    }
 
-    // console.log('no values cached... making api request')
+    console.log('no values cached... making api request')
 
     const access_token = process.env.SQUARE_TOKEN;
     const apiUrl = `https://connect.squareup.com/v2/catalog/list`;
@@ -464,8 +464,8 @@ app.get('/api/square', async (req, res) => {
     const responseData = response.data;
 
     // Cache the data for future use
-    // cache.set(cacheKey, responseData);
-    // console.log('Data cached:', responseData); // Log the cached data
+    cache.set(cacheKey, responseData);
+    console.log('Data cached:', responseData); // Log the cached data
 
     res.json(responseData);
     // console.log(responseData);

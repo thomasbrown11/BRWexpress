@@ -518,3 +518,58 @@ app.get('/api/square_images', async (req, res) => {
     res.status(500).json({ message: 'Error fetching Instagram media' });
   }
 });
+
+
+//will use to limit quantity on single item requests... no need to cache
+app.post('/api/square_item_stock', async (req, res) => {
+  try {
+
+    // const cacheKey = 'squareImages'; // Cache key for the Square data
+    // const cacheTimeout = 10 * 60 * 1000; // Cache timeout in milliseconds (e.g., 10 minutes)
+    
+    // Check if the data is already cached and hasn't expired
+    // const cachedData = cache.get(cacheKey);
+    // if (cachedData && Date.now() - cachedData.timestamp < cacheTimeout) {
+    //   console.log('Data from cache:', cachedData.data); // Log the cached data
+    //   res.json(cachedData.data);
+    //   return; // End the method to prevent an API call
+    // }
+
+    // console.log('no values cached... making api request')
+
+    const access_token = process.env.SQUARE_TOKEN;
+    const apiUrl = 'https://connect.squareup.com/v2/inventory/counts/batch-retrieve';
+
+    const catalogObjectIds = req.body.catalogObjectIds; // Retrieve the array from the request body
+
+    //pass to reqeust headers
+    const requestData = {
+      catalog_object_ids: catalogObjectIds,
+    };
+
+    // Axios configuration with headers
+    const axiosConfig = {
+      headers: {
+        'Authorization': `Bearer ${access_token}`, // Include your access token in the Authorization header
+        'Content-Type': 'application/json', // Set the content type as needed
+      },
+    };
+
+    // // const response = await axios.get(apiUrl, axiosConfig);
+    const response = await axios.post(apiUrl, requestData, config);
+
+    // const responseData = response.data;
+    // const dataToCache = {
+    //   data: responseData,
+    //   timestamp: Date.now(),
+    // };
+    // cache.set(cacheKey, dataToCache);
+    // console.log('Data cached:', responseData); // Log the cached data
+
+    res.json(response.data);
+    // console.log(responseData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching Square inventory' });
+  }
+});

@@ -556,7 +556,7 @@ app.post('/api/square_item_stock', async (req, res) => {
     };
 
     // // const response = await axios.get(apiUrl, axiosConfig);
-    const response = await axios.post(apiUrl, requestData, config);
+    const response = await axios.post(apiUrl, requestData, axiosConfig);
 
     // const responseData = response.data;
     // const dataToCache = {

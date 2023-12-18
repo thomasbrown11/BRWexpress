@@ -433,6 +433,14 @@ app.listen(port, () => {
   console.log(`Express server listening on port ${port}`);
 });
 
+
+
+
+//FOR TESTING
+let sandbox_url='https://connect.squareupsandbox.com';
+let sandbox_token=process.env.SQUARE_SANDBOX;
+
+
 //***SQUARE ENDPOINTS***
 app.get('/api/square', async (req, res) => {
   try {

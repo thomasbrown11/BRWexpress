@@ -457,10 +457,10 @@ app.get('/api/square', async (req, res) => {
 
     console.log('no values cached... making api request')
 
-    const access_token = process.env.SQUARE_TOKEN;
-    const apiUrl = `https://connect.squareup.com/v2/catalog/list`;
-    //const apiUrl = 'https://connect.squareupsandbox.com/v2/catalog/list';
-    //const access_token = process.env.SQUARE_SANDBOX;
+    // const access_token = process.env.SQUARE_TOKEN;
+    // const apiUrl = `https://connect.squareup.com/v2/catalog/list`;
+    const apiUrl = 'https://connect.squareupsandbox.com/v2/catalog/list';
+    const access_token = process.env.SQUARE_SANDBOX;
 
     // Axios configuration with headers
     const axiosConfig = {
@@ -501,10 +501,10 @@ app.get('/api/square_images', async (req, res) => {
 
     console.log('no values cached... making api request')
 
-    const access_token = process.env.SQUARE_TOKEN;
-    const apiUrl = `https://connect.squareup.com/v2/catalog/list?types=IMAGE`;
-    //const apiUrl = 'https://connect.squareupsandbox.com/v2/catalog/list?types=IMAGE';
-    //const access_token = process.env.SQUARE_SANDBOX;
+    // const access_token = process.env.SQUARE_TOKEN;
+    // const apiUrl = `https://connect.squareup.com/v2/catalog/list?types=IMAGE`;
+    const apiUrl = 'https://connect.squareupsandbox.com/v2/catalog/list?types=IMAGE';
+    const access_token = process.env.SQUARE_SANDBOX;
 
     // Axios configuration with headers
     const axiosConfig = {
@@ -549,10 +549,10 @@ app.post('/api/square_item_stock', async (req, res) => {
 
     // console.log('no values cached... making api request')
 
-    const access_token = process.env.SQUARE_TOKEN;
-    const apiUrl = 'https://connect.squareup.com/v2/inventory/counts/batch-retrieve';
-    //const apiUrl = 'https://connect.squareupsandbox.com/v2/inventory/counts/batch-retrieve';
-    //const access_token = process.env.SQUARE_SANDBOX;
+    // const access_token = process.env.SQUARE_TOKEN;
+    // const apiUrl = 'https://connect.squareup.com/v2/inventory/counts/batch-retrieve';
+    const apiUrl = 'https://connect.squareupsandbox.com/v2/inventory/counts/batch-retrieve';
+    const access_token = process.env.SQUARE_SANDBOX;
 
     const catalogObjectIds = req.body.catalogObjectIds; // Retrieve the array from the request body
 

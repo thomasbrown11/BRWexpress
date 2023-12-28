@@ -591,7 +591,10 @@ app.post('/api/square_item_stock', async (req, res) => {
 
 
 //UNFINISHED WORK
+//Generate Square checkout link by passing item/quantity array in req body
 app.post('/api/checkout', async (req, res) => {
+  console.log('Request Body:', req.body);
+  console.log('parsed', JSON.parse(req.body.lineItems))
   try {
     const apiUrl = 'https://connect.squareupsandbox.com/v2/online-checkout/payment-links';
     const access_token = process.env.SQUARE_SANDBOX;
@@ -601,7 +604,8 @@ app.post('/api/checkout', async (req, res) => {
     // const lineItems = req.headers['line-items']; // Retrieve the array from the request headers
 
     // Generate a unique idempotency key
-    const idempotencyKey = generateIdempotencyKey(JSON.parse(lineItems));
+    // const idempotencyKey = generateIdempotencyKey(JSON.parse(lineItems));
+    let idempotencyKey = '1b7955c9-94a2-4e0f-a9e7-2804e11651d4';
 
     // Construct the request data with line_items
     const requestData = {
@@ -626,7 +630,13 @@ app.post('/api/checkout', async (req, res) => {
     res.json(response.data);
     
   } catch (error) {
-    console.error(error);
+    // console.error(error);
+
+    // Log specific error details from the Square API response
+    if (error.response && error.response.data && error.response.data.errors) {
+      console.error('Square API errors:', error.response.data.errors);
+    }
+
     res.status(500).json({ message: 'Error fetching Square inventory' });
   }
 });

@@ -604,8 +604,8 @@ app.post('/api/checkout', async (req, res) => {
     // const lineItems = req.headers['line-items']; // Retrieve the array from the request headers
 
     // Generate a unique idempotency key
-    // const idempotencyKey = generateIdempotencyKey(JSON.parse(lineItems));
-    let idempotencyKey = '1b7955c9-94a2-4e0f-a9e7-2804e11651d4';
+    const idempotencyKey = generateIdempotencyKey(JSON.parse(lineItems));
+    // let idempotencyKey = '1b7955c9-94a2-4e0f-a9e7-2804e11651d4';
 
     // Construct the request data with line_items
     const requestData = {

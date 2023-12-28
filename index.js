@@ -587,3 +587,62 @@ app.post('/api/square_item_stock', async (req, res) => {
     res.status(500).json({ message: 'Error fetching Square inventory' });
   }
 });
+
+
+
+//UNFINISHED WORK
+app.post('/api/checkout', async (req, res) => {
+  try {
+    const apiUrl = 'https://connect.squareupsandbox.com/v2/online-checkout/payment-links';
+    const access_token = process.env.SQUARE_SANDBOX;
+
+    const lineItems = req.body.lineItems; // Retrieve the array from the request body
+
+    // const lineItems = req.headers['line-items']; // Retrieve the array from the request headers
+
+    // Generate a unique idempotency key
+    const idempotencyKey = generateIdempotencyKey(JSON.parse(lineItems));
+
+    // Construct the request data with line_items
+    const requestData = {
+      idempotency_key: idempotencyKey,
+      order: {
+        //what will location be for online store? 
+        location_id: 'L7M1MBW8QRH72', // Replace with your location ID
+        line_items: JSON.parse(lineItems),
+      },
+    };
+
+    // Axios configuration with headers
+    const axiosConfig = {
+      headers: {
+        'Authorization': `Bearer ${access_token}`, // Include your access token in the Authorization header
+        'Content-Type': 'application/json', // Set the content type as needed
+      },
+    };
+
+    const response = await axios.post(apiUrl, requestData, axiosConfig);
+
+    res.json(response.data);
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching Square inventory' });
+  }
+});
+
+// Function to generate a unique idempotency key
+function generateIdempotencyKey(lineItems) {
+  if (!lineItems || lineItems.length === 0) {
+    throw new Error('List of items must be provided for idempotency key generation.');
+  }
+
+  // Extract the variation ID from the first item
+  const variationId = lineItems[0].variant;
+
+  // Generate the rest of the idempotency key using a timestamp and random string
+  const timestamp = Date.now().toString();
+  const randomString = Math.random().toString(36).substring(2, 15);
+
+  return `${timestamp}-${randomString}-${variationId}`;
+}
